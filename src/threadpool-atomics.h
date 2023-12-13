@@ -867,7 +867,7 @@
 	static inline void pthreadpool_yield() {
 		_mm_pause();
 	}
-#elif defined(__wasm__)
+#else
 	static inline void pthreadpool_yield() {
 		__atomic_thread_fence(__ATOMIC_SEQ_CST);
 	}
