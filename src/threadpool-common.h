@@ -40,7 +40,7 @@
 
 
 /* Number of iterations in spin-wait loop before going into futex/condvar wait */
-#define PTHREADPOOL_SPIN_WAIT_ITERATIONS 1000000
+#define PTHREADPOOL_SPIN_WAIT_ITERATIONS 1000
 
 #define PTHREADPOOL_CACHELINE_SIZE 64
 #if defined(__GNUC__)
