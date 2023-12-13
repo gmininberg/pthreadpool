@@ -8,7 +8,7 @@
 	#if defined(__linux__)
 		#define PTHREADPOOL_USE_FUTEX 1
 	#elif defined(__EMSCRIPTEN__)
-		#define PTHREADPOOL_USE_FUTEX 1
+		#define PTHREADPOOL_USE_FUTEX 0
 	#else
 		#define PTHREADPOOL_USE_FUTEX 0
 	#endif
