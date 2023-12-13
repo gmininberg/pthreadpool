@@ -106,7 +106,6 @@ static void wait_worker_threads(struct pthreadpool* threadpool) {
 			return;
 		}
 	#endif
-	printf("wait_worker_threads\r\n");
 	/* Spin-wait */
 	for (uint32_t i = PTHREADPOOL_SPIN_WAIT_ITERATIONS; i != 0; i--) {
 		pthreadpool_yield();
