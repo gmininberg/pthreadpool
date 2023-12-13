@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 /* Configuration header */
 #include "threadpool-common.h"
@@ -105,7 +106,7 @@ static void wait_worker_threads(struct pthreadpool* threadpool) {
 			return;
 		}
 	#endif
-
+	printf("wait_worker_threads\r\n");
 	/* Spin-wait */
 	for (uint32_t i = PTHREADPOOL_SPIN_WAIT_ITERATIONS; i != 0; i--) {
 		pthreadpool_yield();
@@ -146,7 +147,7 @@ static uint32_t wait_for_new_command(
 	if (command != last_command) {
 		return command;
 	}
-
+	pritnf("wait_for_new_command\r\n");
 	if ((last_flags & PTHREADPOOL_FLAG_YIELD_WORKERS) == 0) {
 		/* Spin-wait loop */
 		for (uint32_t i = PTHREADPOOL_SPIN_WAIT_ITERATIONS; i != 0; i--) {
