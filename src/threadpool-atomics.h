@@ -869,6 +869,6 @@
 	}
 #elif defined(__wasm__)
 	static inline void pthreadpool_yield() {
-		__yield();
+		_mm_pause();
 	}
 #endif
