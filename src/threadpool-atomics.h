@@ -867,8 +867,8 @@
 	static inline void pthreadpool_yield() {
 		_mm_pause();
 	}
-#else
+#elif defined(__wasm__)
 	static inline void pthreadpool_yield() {
-		pthreadpool_fence_acquire();
+		__yield();
 	}
 #endif
