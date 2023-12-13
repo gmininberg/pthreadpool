@@ -147,7 +147,7 @@ static uint32_t wait_for_new_command(
 	if (command != last_command) {
 		return command;
 	}
-	pritnf("wait_for_new_command\r\n");
+	printf("wait_for_new_command\r\n");
 	if ((last_flags & PTHREADPOOL_FLAG_YIELD_WORKERS) == 0) {
 		/* Spin-wait loop */
 		for (uint32_t i = PTHREADPOOL_SPIN_WAIT_ITERATIONS; i != 0; i--) {
