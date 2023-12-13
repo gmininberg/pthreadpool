@@ -355,14 +355,6 @@ PTHREADPOOL_INTERNAL void pthreadpool_parallelize(
 	const uint32_t old_command = pthreadpool_load_relaxed_uint32_t(&threadpool->command);
 	const uint32_t new_command = ~(old_command | THREADPOOL_COMMAND_MASK) | threadpool_command_parallelize;
 
-	/*
-	 * Store the command with release semantics to guarantee that if a worker thread observes
-	 * the new command value, it also observes the updated command parameters.
-	 *
-	 * Note: release semantics is necessary even with a conditional variable, because the workers might
-	 * be waiting in a spin-loop rather than the conditional variable.
-	 */
-	pthreadpool_store_release_uint32_t(&threadpool->command, new_command);
 	#if PTHREADPOOL_USE_FUTEX
 		/* Wake up the threads */
 		futex_wake_all(&threadpool->command);
@@ -373,6 +365,15 @@ PTHREADPOOL_INTERNAL void pthreadpool_parallelize(
 		/* Wake up the threads */
 		pthread_cond_broadcast(&threadpool->command_condvar);
 	#endif
+
+	/*
+	 * Store the command with release semantics to guarantee that if a worker thread observes
+	 * the new command value, it also observes the updated command parameters.
+	 *
+	 * Note: release semantics is necessary even with a conditional variable, because the workers might
+	 * be waiting in a spin-loop rather than the conditional variable.
+	 */
+	pthreadpool_store_release_uint32_t(&threadpool->command, new_command);
 
 	/* Save and modify FPU denormals control, if needed */
 	struct fpu_state saved_fpu_state = { 0 };
