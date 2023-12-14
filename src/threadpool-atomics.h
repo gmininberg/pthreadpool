@@ -20,7 +20,6 @@
 #endif
 
 #if defined(__EMSCRIPTEN__)
-extern void _emscripten_yield(double now);
 	#include <emscripten/threading.h>
 #endif
 
