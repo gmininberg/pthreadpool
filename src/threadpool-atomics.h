@@ -760,7 +760,7 @@
 	static inline void pthreadpool_yield() {
 #if defined(__EMSCRIPTEN_PTHREADS__)
 		volatile int32_t addr = 0;
-		ATOMICS_WAIT_RESULT_T ret = emscripten_atomic_wait_u32((int32_t*)&addr, 2, 100000);
+		emscripten_atomic_wait_u32((int32_t*)&addr, 2, 500000);
 #endif
 	}
 #else
