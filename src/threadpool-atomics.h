@@ -19,6 +19,9 @@
 	#include <intrin.h>
 #endif
 
+#if defined(__EMSCRIPTEN__)
+	#include <emscripten/threading.h>
+#endif
 
 #if defined(__wasm__) && defined(__clang__)
 	/*
@@ -866,6 +869,11 @@
 #elif defined(__i386__) || defined(__i686__) || defined(__x86_64__) || defined(_M_IX86) || defined(_M_X64)
 	static inline void pthreadpool_yield() {
 		_mm_pause();
+	}
+#elif defined(__EMSCRIPTEN__)
+#error test
+	static inline void pthreadpool_yield() {
+		emscripten_sleep(0);
 	}
 #else
 	static inline void pthreadpool_yield() {
