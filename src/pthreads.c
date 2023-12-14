@@ -365,6 +365,11 @@ PTHREADPOOL_INTERNAL void pthreadpool_parallelize(
 	 * be waiting in a spin-loop rather than the conditional variable.
 	 */
 	pthreadpool_store_release_uint32_t(&threadpool->command, new_command);
+
+#if defined(__EMSCRIPTEN_PTHREADS__)	
+	emscripten_atomic_notify(&threadpool->command, INT_MAX);
+#endif
+
 	#if PTHREADPOOL_USE_FUTEX
 		/* Wake up the threads */
 		futex_wake_all(&threadpool->command);
