@@ -329,7 +329,6 @@ PTHREADPOOL_INTERNAL void pthreadpool_parallelize(
 
 	if (params_size != 0) {
 		memcpy(&threadpool->params, params, params_size);
-		pthreadpool_fence_release();
 	}
 
 	/* Spread the work between threads */
@@ -356,6 +355,10 @@ PTHREADPOOL_INTERNAL void pthreadpool_parallelize(
 	 */
 	const uint32_t old_command = pthreadpool_load_relaxed_uint32_t(&threadpool->command);
 	const uint32_t new_command = ~(old_command | THREADPOOL_COMMAND_MASK) | threadpool_command_parallelize;
+
+	if (params_size != 0) {
+		pthreadpool_fence_release();
+	}
 
 	/*
 	 * Store the command with release semantics to guarantee that if a worker thread observes
