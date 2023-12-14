@@ -19,6 +19,13 @@
 	#include <intrin.h>
 #endif
 
+#if defined(__EMSCRIPTEN__)
+	#include <emscripten/atomic.h>
+extern int64_t getSleepTimeNS();
+#endif
+
+
+
 #if  defined(__EMSCRIPTEN__)  || (defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 201112L) && !defined(__STDC_NO_ATOMICS__))
 	#include <stdatomic.h>
 
@@ -749,6 +756,11 @@
 #elif defined(__i386__) || defined(__i686__) || defined(__x86_64__) || defined(_M_IX86) || defined(_M_X64)
 	static inline void pthreadpool_yield() {
 		_mm_pause();
+	}
+#elif defined(__EMSCRIPTEN__)
+	static inline void pthreadpool_yield() {
+		pthreadpool_atomic_uint32_t temp = 1;
+		emscripten_atomic_wait_u32(&temp, 1, getSleepTimeNS());
 	}
 #else
 	static inline void pthreadpool_yield() {
