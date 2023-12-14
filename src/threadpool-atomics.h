@@ -754,11 +754,6 @@
 	static inline void pthreadpool_yield() {
 		_mm_pause();
 	}
-#elif defined(__EMSCRIPTEN__)
-	static inline void pthreadpool_yield() {
-		pthreadpool_atomic_uint32_t temp;
-		emscripten_futex_wait((volatile void*)&temp, 1, 0);
-	}
 #else
 	static inline void pthreadpool_yield() {
 		pthreadpool_fence_acquire();
