@@ -756,6 +756,13 @@
 	static inline void pthreadpool_yield() {
 		_mm_pause();
 	}
+#elif defined(__EMSCRIPTEN_PTHREADS__)
+	static inline void pthreadpool_yield(pthreadpool_atomic_uint32_t* address, uint32_t val) {
+		emscripten_atomic_wait_u32((int32_t*)address, val, 10000);
+	}
+	static inline void pthreadpool_yield() {
+		pthreadpool_fence_acquire();
+	}
 #else
 	static inline void pthreadpool_yield() {
 		pthreadpool_fence_acquire();

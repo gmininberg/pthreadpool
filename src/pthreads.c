@@ -150,7 +150,7 @@ static uint32_t wait_for_new_command(
 	if ((last_flags & PTHREADPOOL_FLAG_YIELD_WORKERS) == 0) {
 		/* Spin-wait loop */
 		for (uint32_t i = PTHREADPOOL_SPIN_WAIT_ITERATIONS; i != 0; i--) {
-			pthreadpool_yield();
+			pthreadpool_yield(&threadpool->command, last_command);
 
 			command = pthreadpool_load_acquire_uint32_t(&threadpool->command);
 			if (command != last_command) {
@@ -329,6 +329,7 @@ PTHREADPOOL_INTERNAL void pthreadpool_parallelize(
 
 	if (params_size != 0) {
 		memcpy(&threadpool->params, params, params_size);
+		pthreadpool_fence_release();
 	}
 
 	/* Spread the work between threads */
@@ -355,10 +356,6 @@ PTHREADPOOL_INTERNAL void pthreadpool_parallelize(
 	 */
 	const uint32_t old_command = pthreadpool_load_relaxed_uint32_t(&threadpool->command);
 	const uint32_t new_command = ~(old_command | THREADPOOL_COMMAND_MASK) | threadpool_command_parallelize;
-
-	if (params_size != 0) {
-		pthreadpool_fence_release();
-	}
 
 	/*
 	 * Store the command with release semantics to guarantee that if a worker thread observes
