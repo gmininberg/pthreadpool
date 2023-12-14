@@ -759,8 +759,9 @@ extern int64_t getSleepTimeNS();
 	}
 #elif defined(__EMSCRIPTEN__)
 	static inline void pthreadpool_yield() {
-		pthreadpool_atomic_uint32_t temp = 1;
-		emscripten_atomic_wait_u32(&temp, 1, getSleepTimeNS());
+		volatile int32_t addr = 0;
+		emscripten_atomic_store_u32((void*)&addr, 1);
+		ATOMICS_WAIT_RESULT_T ret = emscripten_atomic_wait_u32((int32_t*)&addr, 2, getSleepTimeNS());
 	}
 #else
 	static inline void pthreadpool_yield() {
