@@ -24,123 +24,7 @@ extern void _emscripten_yield(double now);
 	#include <emscripten/threading.h>
 #endif
 
-#if defined(__wasm__) && defined(__clang__)
-	/*
-	 * Clang for WebAssembly target lacks stdatomic.h header,
-	 * even though it supports the necessary low-level intrinsics.
-	 * Thus, we implement pthreadpool atomic functions on top of
-	 * low-level Clang-specific interfaces for this target.
-	 */
-
-	typedef _Atomic(uint32_t) pthreadpool_atomic_uint32_t;
-	typedef _Atomic(size_t)   pthreadpool_atomic_size_t;
-	typedef _Atomic(void*)    pthreadpool_atomic_void_p;
-
-	static inline uint32_t pthreadpool_load_relaxed_uint32_t(
-		pthreadpool_atomic_uint32_t* address)
-	{
-		return __c11_atomic_load(address, __ATOMIC_RELAXED);
-	}
-
-	static inline size_t pthreadpool_load_relaxed_size_t(
-		pthreadpool_atomic_size_t* address)
-	{
-		return __c11_atomic_load(address, __ATOMIC_RELAXED);
-	}
-
-	static inline void* pthreadpool_load_relaxed_void_p(
-		pthreadpool_atomic_void_p* address)
-	{
-		return __c11_atomic_load(address, __ATOMIC_RELAXED);
-	}
-
-	static inline uint32_t pthreadpool_load_acquire_uint32_t(
-		pthreadpool_atomic_uint32_t* address)
-	{
-		return __c11_atomic_load(address, __ATOMIC_ACQUIRE);
-	}
-
-	static inline size_t pthreadpool_load_acquire_size_t(
-		pthreadpool_atomic_size_t* address)
-	{
-		return __c11_atomic_load(address, __ATOMIC_ACQUIRE);
-	}
-
-	static inline void pthreadpool_store_relaxed_uint32_t(
-		pthreadpool_atomic_uint32_t* address,
-		uint32_t value)
-	{
-		__c11_atomic_store(address, value, __ATOMIC_RELAXED);
-	}
-
-	static inline void pthreadpool_store_relaxed_size_t(
-		pthreadpool_atomic_size_t* address,
-		size_t value)
-	{
-		__c11_atomic_store(address, value, __ATOMIC_RELAXED);
-	}
-
-	static inline void pthreadpool_store_relaxed_void_p(
-		pthreadpool_atomic_void_p* address,
-		void* value)
-	{
-		__c11_atomic_store(address, value, __ATOMIC_RELAXED);
-	}
-
-	static inline void pthreadpool_store_release_uint32_t(
-		pthreadpool_atomic_uint32_t* address,
-		uint32_t value)
-	{
-		__c11_atomic_store(address, value, __ATOMIC_RELEASE);
-	}
-
-	static inline void pthreadpool_store_release_size_t(
-		pthreadpool_atomic_size_t* address,
-		size_t value)
-	{
-		__c11_atomic_store(address, value, __ATOMIC_RELEASE);
-	}
-
-	static inline size_t pthreadpool_decrement_fetch_relaxed_size_t(
-		pthreadpool_atomic_size_t* address)
-	{
-		return __c11_atomic_fetch_sub(address, 1, __ATOMIC_RELAXED) - 1;
-	}
-
-	static inline size_t pthreadpool_decrement_fetch_release_size_t(
-		pthreadpool_atomic_size_t* address)
-	{
-		return __c11_atomic_fetch_sub(address, 1, __ATOMIC_RELEASE) - 1;
-	}
-
-	static inline size_t pthreadpool_decrement_fetch_acquire_release_size_t(
-		pthreadpool_atomic_size_t* address)
-	{
-		return __c11_atomic_fetch_sub(address, 1, __ATOMIC_ACQ_REL) - 1;
-	}
-
-	static inline bool pthreadpool_try_decrement_relaxed_size_t(
-		pthreadpool_atomic_size_t* value)
-	{
-		size_t actual_value = __c11_atomic_load(value, __ATOMIC_RELAXED);
-		while (actual_value != 0) {
-			if (__c11_atomic_compare_exchange_weak(
-				value, &actual_value, actual_value - 1, __ATOMIC_RELAXED, __ATOMIC_RELAXED))
-			{
-				return true;
-			}
-		}
-		return false;
-	}
-
-	static inline void pthreadpool_fence_acquire() {
-		__c11_atomic_thread_fence(__ATOMIC_ACQUIRE);
-	}
-
-	static inline void pthreadpool_fence_release() {
-		__c11_atomic_thread_fence(__ATOMIC_RELEASE);
-	}
-#elif defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 201112L) && !defined(__STDC_NO_ATOMICS__)
+#if  defined(__EMSCRIPTEN__)  || (defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 201112L) && !defined(__STDC_NO_ATOMICS__))
 	#include <stdatomic.h>
 
 	typedef _Atomic(uint32_t) pthreadpool_atomic_uint32_t;
@@ -873,8 +757,8 @@ extern void _emscripten_yield(double now);
 	}
 #elif defined(__EMSCRIPTEN__)
 	static inline void pthreadpool_yield() {
-		double now = emscripten_get_now();
-		_emscripten_yield(now);
+		pthreadpool_atomic_uint32_t temp;
+		return emscripten_futex_wait((volatile void*)&temp, 1, 0);
 	}
 #else
 	static inline void pthreadpool_yield() {
