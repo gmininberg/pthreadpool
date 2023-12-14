@@ -19,10 +19,6 @@
 	#include <intrin.h>
 #endif
 
-#if defined(__EMSCRIPTEN__)
-	#include <emscripten/threading.h>
-#endif
-
 #if  defined(__EMSCRIPTEN__)  || (defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 201112L) && !defined(__STDC_NO_ATOMICS__))
 	#include <stdatomic.h>
 
