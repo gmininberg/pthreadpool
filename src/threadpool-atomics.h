@@ -872,7 +872,12 @@
 	}
 #elif defined(__EMSCRIPTEN__)
 	static inline void pthreadpool_yield() {
-		emscripten_sleep(0);
+		if(emscripten_is_main_runtime_thread() == 1){
+			emscripten_sleep(0);
+		}else{
+			emscripten_thread_sleep(0);
+		}
+		
 	}
 #else
 	static inline void pthreadpool_yield() {
