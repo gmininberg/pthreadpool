@@ -877,6 +877,6 @@
 	}
 #else
 	static inline void pthreadpool_yield() {
-		__atomic_thread_fence(__ATOMIC_SEQ_CST);
+		pthreadpool_fence_acquire();
 	}
 #endif
