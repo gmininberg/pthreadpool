@@ -21,7 +21,6 @@
 
 #if defined(__EMSCRIPTEN__)
 	#include <emscripten/atomic.h>
-extern int64_t getSleepTimeNS();
 #endif
 
 
@@ -759,9 +758,11 @@ extern int64_t getSleepTimeNS();
 	}
 #elif defined(__EMSCRIPTEN__)
 	static inline void pthreadpool_yield() {
+#if defined(__EMSCRIPTEN_PTHREADS__)
 		volatile int32_t addr = 0;
 		emscripten_atomic_store_u32((void*)&addr, 1);
-		ATOMICS_WAIT_RESULT_T ret = emscripten_atomic_wait_u32((int32_t*)&addr, 2, getSleepTimeNS());
+		ATOMICS_WAIT_RESULT_T ret = emscripten_atomic_wait_u32((int32_t*)&addr, 2, 10000);
+#endif
 	}
 #else
 	static inline void pthreadpool_yield() {
