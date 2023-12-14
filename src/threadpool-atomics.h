@@ -21,7 +21,6 @@
 
 #if defined(__EMSCRIPTEN__)
 	#include <emscripten/atomic.h>
-extern int64_t getTimeoutNS();
 #endif
 
 
@@ -762,7 +761,7 @@ extern int64_t getTimeoutNS();
 #if defined(__EMSCRIPTEN_PTHREADS__)
 		volatile int32_t addr = 0;
 		emscripten_atomic_store_u32((void*)&addr, 1);
-		emscripten_atomic_wait_u32((int32_t*)&addr, 1, getTimeoutNS());
+		emscripten_atomic_wait_u32((int32_t*)&addr, 1, 500000);
 #endif
 	}
 #else
