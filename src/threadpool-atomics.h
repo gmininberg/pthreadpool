@@ -871,7 +871,6 @@
 		_mm_pause();
 	}
 #elif defined(__EMSCRIPTEN__)
-#error test
 	static inline void pthreadpool_yield() {
 		emscripten_sleep(0);
 	}
