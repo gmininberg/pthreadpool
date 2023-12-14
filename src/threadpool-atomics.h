@@ -758,7 +758,7 @@ extern void _emscripten_yield(double now);
 #elif defined(__EMSCRIPTEN__)
 	static inline void pthreadpool_yield() {
 		pthreadpool_atomic_uint32_t temp;
-		return emscripten_futex_wait((volatile void*)&temp, 1, 0);
+		emscripten_futex_wait((volatile void*)&temp, 1, 0);
 	}
 #else
 	static inline void pthreadpool_yield() {
