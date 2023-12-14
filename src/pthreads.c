@@ -150,7 +150,7 @@ static uint32_t wait_for_new_command(
 	if ((last_flags & PTHREADPOOL_FLAG_YIELD_WORKERS) == 0) {
 		/* Spin-wait loop */
 		for (uint32_t i = PTHREADPOOL_SPIN_WAIT_ITERATIONS; i != 0; i--) {
-			pthreadpool_yield(&threadpool->command, last_command);
+			pthreadpool_yield_wait(&threadpool->command, last_command);
 
 			command = pthreadpool_load_acquire_uint32_t(&threadpool->command);
 			if (command != last_command) {
