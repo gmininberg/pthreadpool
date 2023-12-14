@@ -20,6 +20,7 @@
 #endif
 
 #if defined(__EMSCRIPTEN__)
+extern void _emscripten_yield(double now);
 	#include <emscripten/threading.h>
 #endif
 
@@ -872,12 +873,8 @@
 	}
 #elif defined(__EMSCRIPTEN__)
 	static inline void pthreadpool_yield() {
-		if(emscripten_is_main_runtime_thread() == 1){
-			emscripten_sleep(0);
-		}else{
-			emscripten_thread_sleep(0);
-		}
-		
+		double now = emscripten_get_now();
+		_emscripten_yield(now);
 	}
 #else
 	static inline void pthreadpool_yield() {
