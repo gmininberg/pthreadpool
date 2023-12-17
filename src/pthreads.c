@@ -356,11 +356,7 @@ PTHREADPOOL_INTERNAL void pthreadpool_parallelize(
 	 */
 	const uint32_t old_command = pthreadpool_load_relaxed_uint32_t(&threadpool->command);
 	const uint32_t new_command = ~(old_command | THREADPOOL_COMMAND_MASK) | threadpool_command_parallelize;
-
-#if defined(__EMSCRIPTEN_PTHREADS__)	
-	emscripten_atomic_notify(&threadpool->command, INT_MAX);
-#endif
-
+	
 	/*
 	 * Store the command with release semantics to guarantee that if a worker thread observes
 	 * the new command value, it also observes the updated command parameters.
@@ -369,6 +365,10 @@ PTHREADPOOL_INTERNAL void pthreadpool_parallelize(
 	 * be waiting in a spin-loop rather than the conditional variable.
 	 */
 	pthreadpool_store_release_uint32_t(&threadpool->command, new_command);
+
+#if defined(__EMSCRIPTEN_PTHREADS__)	
+	emscripten_atomic_notify(&threadpool->command, INT_MAX);
+#endif
 
 	#if PTHREADPOOL_USE_FUTEX
 		/* Wake up the threads */
