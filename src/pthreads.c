@@ -347,10 +347,6 @@ PTHREADPOOL_INTERNAL void pthreadpool_parallelize(
 		range_start = range_end;
 	}
 
-#if defined(__EMSCRIPTEN_PTHREADS__)	
-	emscripten_atomic_notify(&threadpool->command, INT_MAX);
-#endif
-
 	/*
 	 * Update the threadpool command.
 	 * Imporantly, do it after initializing command parameters (range, task, argument, flags)
@@ -360,6 +356,10 @@ PTHREADPOOL_INTERNAL void pthreadpool_parallelize(
 	 */
 	const uint32_t old_command = pthreadpool_load_relaxed_uint32_t(&threadpool->command);
 	const uint32_t new_command = ~(old_command | THREADPOOL_COMMAND_MASK) | threadpool_command_parallelize;
+
+#if defined(__EMSCRIPTEN_PTHREADS__)	
+	emscripten_atomic_notify(&threadpool->command, INT_MAX);
+#endif
 
 	/*
 	 * Store the command with release semantics to guarantee that if a worker thread observes
